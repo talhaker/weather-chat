@@ -1,3 +1,4 @@
+"use strict";
 var WeatherChatApp = function() {
     var STORAGE_ID = 'spacebook';
 
@@ -20,12 +21,12 @@ var WeatherChatApp = function() {
         "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"
     ];
 
-    // render posts to page
-    // this function empties the posts div, 
-    // then adds each post them from the posts array 
+    // render cities to page
+    // this function empties the cities div, 
+    // then adds each city from the cities array 
     // along with the appropriate HTML
-    var _renderCityWeatherInfo = function(isNewCity) {
-        // variable for storing our posts div
+    var _renderCityWeatherInfo = function() {
+        // variable for storing our cities div
         var citiesList = $('.cities');
         citiesList.empty();
 
@@ -35,64 +36,70 @@ var WeatherChatApp = function() {
         // Compile the template
         var listItemTemplate = Handlebars.compile(theTemplateScript);
 
+        // Loop to create individual list items
         for (let cityIndex = 0; cityIndex < cities.length; cityIndex++) {
-            // Create a single item in the list
             var city = cities[cityIndex].data;
             var date = new Date(city.dt * 1000);
-            console.log("date: " + date);
             let cityData = {
-                    "city-name": city.name,
-                    "celsius": Math.floor(city.main.temp),
-                    "fahrenheit": Math.floor(city.main.temp * 9 / 5 + 32),
-                    "last-update-time": date.getHours() + ':' + date.getMinutes(),
-                    "last-update-date": weekdayNames[date.getDay()] + ', ' + monthNames[date.getMonth() - 1] + ' ' + date.getDate() + ', ' + date.getFullYear()
-                }
-                // Pass our data to the template
+                "city-name": city.name,
+                "city-id": cityIndex,
+                "celsius": Math.floor(city.main.temp),
+                "fahrenheit": Math.floor(city.main.temp * 9 / 5 + 32),
+                "weather-icon": city.weather[0].icon,
+                "last-update-time": date.getHours() + ':' + date.getMinutes(),
+                "last-update-date": weekdayNames[date.getDay()] + ', ' + monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear()
+            };
+            // Pass our data to the template
             var listItemHtml = listItemTemplate(cityData);
 
             // Add the compiled html to the page
             $(listItemHtml).appendTo(citiesList);
         }
-
-        // var commentsContainer = '<div class="comments-container">' + '<ul class=comments-list></ul>' +
-        //     '<input type="text" class="comment-name">' +
-        //     '<button class="btn btn-sm btn-primary add-comment">Post Comment</button> </div>';
-        // var weatherData = ""
-
-        // $cities.append('<li class="city">' +
-        //     '<a href="#" class="show-comments">Toggle Comments </a> ' +
-        //     city.text + '<button class="btn btn-danger btn-sm remove">Remove Post</button> ' + commentsContainer + '</li>');
     }
 
     var _renderComments = function() {
-        //empty all the comments - from all cities!!!
-        $('.comments-list').empty();
+        // Grab the template script
+        var theTemplateScript = $("#comment-template").html();
 
-        for (var i = 0; i < cities.length; i += 1) {
+        // Compile the template
+        var listItemTemplate = Handlebars.compile(theTemplateScript);
+
+        // For every city
+        for (var cityIx = 0; cityIx < cities.length; cityIx += 1) {
             // the current city in the iteration
-            var city = cities[i];
+            var city = cities[cityIx];
 
             // finding the "city" element in the page that is "equal" to the
             // current city we're iterating on
-            var $city = $('.cities').find('.city').eq(i);
+            var $city = $('.cities').find('.city').eq(cityIx);
+            var commentList = $city.find('.comments-list');
+            // empty all the comments - from all cities!!!
+            commentList.empty();
 
             // iterate through each comment in our city's comments array
-            for (var j = 0; j < city.comments.length; j += 1) {
+            for (var commentIx = 0; commentIx < city.comments.length; commentIx += 1) {
                 // the current comment in the iteration
-                var comment = city.comments[j];
+                var commentData = {
+                    "comment-text": city.comments[commentIx].text
+                };
+                // Pass our data to the template
+                var listItemHtml = listItemTemplate(commentData);
 
-                // append the comment to the post we wanted to comment on
-                $city.find('.comments-list').append(
-                    '<li class="comment">' + comment.text +
-                    '<button class="btn btn-danger btn-sm remove-comment">Remove Comment</button>' +
-                    '</li>'
-                );
+                // Add the compiled html to the page
+                $(listItemHtml).appendTo(commentList);
             };
         };
     };
 
     let _getWeatherSuccess = function(data) {
+        var cityIx = cities.findIndex(city => city.data.name === data.name);
+        if (cityIx !== -1) {
+            // Discard previous weather info - only keep latest info
+            cities.splice(cityIx, 1);
+        }
+        // Insert lated city data into array
         cities.unshift({ data: data, comments: [] });
+
         saveToLocalStorage();
         _renderCityWeatherInfo();
         _renderComments();
@@ -101,8 +108,9 @@ var WeatherChatApp = function() {
     // build a single city object and push it to array
     let getWeatherInfo = function(text) {
         if (text == "") {
-            $("#error").html("City cannot be empty");
+            $("#error").html("ERROR: City cannot be empty! Please enter a valid city name");
         } else {
+            $("#error").html("");
             $.get({
                 url: "http://api.openweathermap.org/data/2.5/weather?q=" + text + "&units=metric" + "&APPID=ebd926499f1f8920359ceb4e29afc9eb",
                 success: function(data) {
@@ -123,8 +131,8 @@ var WeatherChatApp = function() {
         $clickedCity.remove();
     };
 
-    var createComment = function(text, cityIndex) {
-        var comment = { text: text };
+    var createComment = function(newText, cityIndex) {
+        var comment = { text: newText };
 
         // pushing the comment into the correct city array
         cities[cityIndex].comments.push(comment);
@@ -144,7 +152,7 @@ var WeatherChatApp = function() {
     };
 
     //  invoke the render method on app load
-    _renderCityWeatherInfo(false);
+    _renderCityWeatherInfo();
     _renderComments();
 
     return {
@@ -160,11 +168,12 @@ var app = WeatherChatApp();
 // Event Handlers below
 
 $('.get-temp').on('click', function(e) {
+    event.preventDefault();
     var text = $('#city-name').val();
     app.getWeatherInfo(text);
 });
 
-$('.cities').on('click', '.remove', function() {
+$('.cities').on('click', '.remove-city', function() {
     var $clickedCity = $(this).closest('.city');
     var index = $clickedCity.index();
 
@@ -172,7 +181,7 @@ $('.cities').on('click', '.remove', function() {
 });
 
 $('.cities').on('click', '.add-comment', function() {
-    var text = $(this).siblings('.comment-name').val();
+    var text = $(this).closest('.add-comments-container').find('.comment-text').val();
     // finding the index of the city in the page... will use it in #createComment
     var cityIndex = $(this).closest('.city').index();
 
@@ -190,7 +199,22 @@ $('.cities').on('click', '.remove-comment', function() {
     app.removeComment($clickedComment, commentIndex, cityIndex);
 });
 
-$('.cities').on('click', '.show-comments', function() {
-    var $clickedCity = $(this).closest('.city');
-    $clickedCity.find('.comments-container').toggleClass('show');
+$('.cities').on('click', '.toggle-comments', function() {
+    var clickedCity = $(this).closest('.city');
+    clickedCity.find('.comments-container').toggleClass('show');
+    clickedCity.find('.add-comments-container').toggleClass('show');
+
+    // $(clickedCity).find('.toggle-comments').text(function(_, existingText) {
+    var toggleBtn = $(clickedCity).find('.toggle-comments')[0];
+    if ($(toggleBtn).text() === "  Show Comments") {
+        $(toggleBtn).text("  Hide Comments");
+        $(toggleBtn).removeClass("fa-toggle-down");
+        $(toggleBtn).addClass("fa-toggle-up");
+    } else {
+        $(toggleBtn).text("  Show Comments");
+        $(toggleBtn).removeClass("fa-toggle-up");
+        $(toggleBtn).addClass("fa-toggle-down");
+    }
 });
+
+//
