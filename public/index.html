@@ -12,25 +12,17 @@
 <body>
     <div class="container">
         <div class="page-header">
-            <h1 class="weather-chat-header text-center">Weather Chat </h1>
-            <!--             <i class="fas fa-eye fa-2x"></i> -->
+            <h1 class="weather-chat-header text-center font-dk-blue">Weather Chat </h1>
+            <!-- <i class="fas fa-sun fa-2x"></i> -->
         </div>
-        <!-- 
-        <div class="cities">
-            <div class="busy-indicator">
-                <img src='ajax-loader.gif'>
-            </div>
-        </div>
-
- -->
 
         <!-- This is the city list handlebar template -->
         <!-- Data will be inserted in its according place, replacing the brackets -->
-        <script id="list-item-template" type="text/x-handlebars-template">
+        <script id="city-item-template" type="text/x-handlebars-template">
             <div class="city">
                 <div class="row">
                     <div class="col-md-9">
-                        <h3 class="inline">{{city-name}}</h3>
+                        <h3 class="inline font-dk-blue">{{city-name}}</h3>
                     </div>
                     <div class="col-md-2">
                         <button class="btn btn-danger btn-sm remove-city inline tooltip-delete">
@@ -39,14 +31,17 @@
                         </button>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row weather-data">
                     <div class="col-md-2 col-md-offset-1 vcenter">
                         <a id="{{city-id}}">{{celsius}} &deg;C / {{fahrenheit}} &deg;F </a>
+                    </div>
+                    <div class="col-md-2 vcenter">
+                        <a>{{weather-description}}</a>
                     </div>
                     <div class="col-md-1 vcenter">
                         <img calss="wicon" src="/weather-icons/{{weather-icon}}.png" alt="Weather icon" />
                     </div>
-                    <div class="col-md-5 vcenter">
+                    <div class="col-md-3 vcenter">
                         <a>at {{last-update-time}} on {{last-update-date}}</a>
                     </div>
                     <div class="col-md-1 inline vcenter">
@@ -68,7 +63,7 @@
             </div>
         </script>
 
-        <!-- This is the comment list handlebar template -->
+        <!-- This is the comment item handlebar template -->
         <!-- Data will be inserted in its according place, replacing the brackets -->
         <script id="comment-template" type="text/x-handlebars-template">
             <p class="comment">{{comment-text}}
@@ -80,13 +75,12 @@
         </script>
 
         <div class="row">
-            <!-- <div class="col-md-6 col-md-offset-3"> -->
             <div class="col-md-10 col-md-offset-1">
-                <h3>Enter City Name</h3>
+                <h3 class="font-dk-blue">Enter City Name</h3>
                 <form>
                     <div class="form-group">
                         <input type="text" id="city-name" class="form-control" placeholder="Enter City Name">
-                        <button type="button" class="btn btn-primary get-temp inline">Get City Temperature</button>
+                        <button type="button font-dk-blue" class="btn btn-primary get-temp inline">Get City Weather</button>
                     </div>
                 </form>
                 <span id="error" class=".margin-bottom-20"></span>
@@ -94,7 +88,6 @@
         </div>
 
         <div class="row">
-            <!-- <div class="col-md-6 col-md-offset-3"> -->
             <div class="col-md-10 col-md-offset-1">
                 <div class="cities">
                 </div>

@@ -1,6 +1,6 @@
 "use strict";
 var WeatherChatApp = function() {
-    var STORAGE_ID = 'spacebook';
+    var STORAGE_ID = 'weather-chat';
 
     var saveToLocalStorage = function() {
         localStorage.setItem(STORAGE_ID, JSON.stringify(cities));
@@ -24,14 +24,14 @@ var WeatherChatApp = function() {
     // render cities to page
     // this function empties the cities div, 
     // then adds each city from the cities array 
-    // along with the appropriate HTML
+    // along with the appropriate HTML (using handlebars)
     var _renderCityWeatherInfo = function() {
         // variable for storing our cities div
         var citiesList = $('.cities');
         citiesList.empty();
 
         // Grab the template script
-        var theTemplateScript = $("#list-item-template").html();
+        var theTemplateScript = $("#city-item-template").html();
 
         // Compile the template
         var listItemTemplate = Handlebars.compile(theTemplateScript);
@@ -45,6 +45,7 @@ var WeatherChatApp = function() {
                 "city-id": cityIndex,
                 "celsius": Math.floor(city.main.temp),
                 "fahrenheit": Math.floor(city.main.temp * 9 / 5 + 32),
+                "weather-description": city.weather[0].description,
                 "weather-icon": city.weather[0].icon,
                 "last-update-time": date.getHours() + ':' + date.getMinutes(),
                 "last-update-date": weekdayNames[date.getDay()] + ', ' + monthNames[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear()
@@ -105,7 +106,7 @@ var WeatherChatApp = function() {
         _renderComments();
     };
 
-    // build a single city object and push it to array
+    // Get weather info for requested city
     let getWeatherInfo = function(text) {
         if (text == "") {
             $("#error").html("ERROR: City cannot be empty! Please enter a valid city name");
@@ -123,14 +124,16 @@ var WeatherChatApp = function() {
         }
     };
 
+    // Remove city info from page
     var removeCity = function($clickedCity, cityIndex) {
         cities.splice(cityIndex, 1);
         saveToLocalStorage();
 
-        // removing the post from the page
+        // removing the info from the page
         $clickedCity.remove();
     };
 
+    // Create a new comment
     var createComment = function(newText, cityIndex) {
         var comment = { text: newText };
 
@@ -142,6 +145,7 @@ var WeatherChatApp = function() {
         _renderComments();
     };
 
+    // Remove requested comment
     var removeComment = function($clickedComment, commentIndex, cityIndex) {
         // remove the comment from the comments array on the correct city object
         cities[cityIndex].comments.splice(commentIndex, 1);
@@ -151,7 +155,7 @@ var WeatherChatApp = function() {
         $clickedComment.remove();
     };
 
-    //  invoke the render method on app load
+    //  invoke the render method on app load (uses info from saved queries)
     _renderCityWeatherInfo();
     _renderComments();
 

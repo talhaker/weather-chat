@@ -4,13 +4,36 @@
 
 body {
     background-image: url("images/sunny.jpg");
-    background-repeat: no-repeat;
     background-size: 100%;
+}
+
+.city {
+    background: rgb(204, 255, 204);
+    background: rgba(204, 255, 204, 0.25);
+    width: 100%;
+    padding: 20px;
+    margin-top: 10px;
+    border: 1px solid rgb(0, 0, 102);
+    border-radius: 4px;
+}
+
+.city:hover {
+    background: rgba(204, 255, 204, 0.1);
+}
+
+#city-name,
+.comment-text {
+    border: 1px solid rgb(0, 0, 102);
+    border-radius: 4px;
 }
 
 .comments-container,
 .add-comments-container {
     display: none;
+}
+
+.comment {
+    padding-bottom: 5px;
 }
 
 .vcenter {
@@ -19,17 +42,19 @@ body {
     float: none;
 }
 
+.weather-data {
+    font-style: italic;
+    font-weight: bold;
+    color: rgb(0, 0, 77);
+}
+
+.font-dk-blue {
+    color: rgb(0, 0, 77);
+}
+
 #error {
     color: red;
     background-color: beige;
-}
-
-.show {
-    display: block;
-}
-
-li {
-    padding: 15px 0;
 }
 
 .btn-danger {
@@ -53,9 +78,6 @@ li {
     position: absolute;
     right: 0;
 }
-
-
-/* .tooltip-delete .tooltip-delete-text { */
 
 .tooltip-delete-text {
     visibility: hidden;
@@ -98,11 +120,16 @@ li {
     display: inline;
 }
 
-[data-icon]:before {
-    font-family: icons;
-    /* BYO icon font, mapped smartly */
-    content: attr(data-icon);
-}
+
+/* [data-icon]:before {
+    font-family: icons; */
+
+
+/* BYO icon font, mapped smartly */
+
+
+/* content: attr(data-icon);
+} */
 
 
 /*  */
